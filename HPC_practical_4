@@ -1,0 +1,84 @@
+problem 1 
+Analyse and implement a Parallel code for below programs using OpenMP considering synchronization requirements. (Demonstrate the use of different clauses and constructs wherever applicable)
+
+#include <stdio.h>
+#include <omp.h>
+int fibonacci(int n) {
+    if (n <= 1)
+        return n;
+
+    int x, y;
+    #pragma omp task shared(x)
+    x = fibonacci(n - 1);
+    #pragma omp task shared(y)
+    y = fibonacci(n - 2);
+    #pragma omp taskwait
+    return x + y;
+}
+int main() {
+    int n = 10;
+    int result;
+    #pragma omp parallel
+    {
+        #pragma omp single
+        {
+            result = fibonacci(n);
+        }
+    }
+
+    printf("Fibonacci(%d) = %d\n", n, result);
+    return 0;
+}
+
+
+problem 2
+Analyse and implement a Parallel code for below programs using OpenMP considering synchronization requirements. (Demonstrate the use of different clauses and constructs wherever applicable)
+
+#include <stdlib.h>
+#include <omp.h>
+
+#define BUFFER_SIZE 5
+int buffer[BUFFER_SIZE];
+int count = 0;
+void producer() {
+    for (int i = 0; i < 10; i++) {
+        #pragma omp critical
+        {
+            if (count < BUFFER_SIZE) {
+                buffer[count] = i;
+                printf("Produced: %d\n", i);
+                count++;
+            }
+        }
+    }
+}
+
+// Function for consumer
+void consumer() {
+    for (int i = 0; i < 10; i++) {
+        #pragma omp critical
+        {
+            if (count > 0) {
+                count--;
+                printf("Consumed: %d\n", buffer[count]);
+            }
+        }
+    }
+}
+
+int main() {
+    #pragma omp parallel sections
+    {
+        #pragma omp section
+        {
+            producer();
+        }
+
+        #pragma omp section
+        {
+            consumer();
+        }
+    }
+    return 0;
+} 
+
