@@ -1,0 +1,104 @@
+6.1 
+
+#include <stdio.h>
+#include <omp.h>
+
+#define ROWS 3
+#define COLS 3
+
+int main() {
+    int i, j;
+    int matrix[ROWS][COLS] = { {1, 2, 3},
+                               {4, 5, 6},
+                               {7, 8, 9} };
+    int scalar = 2;
+    int result[ROWS][COLS];
+
+    #pragma omp parallel for private(j) shared(matrix, result, scalar)
+    for(i = 0; i < ROWS; i++){
+        for(j = 0; j < COLS; j++){
+            result[i][j] = matrix[i][j] * scalar;
+        }
+    }
+
+    // Print the result matrix
+    printf("Result Matrix:\n");
+    for(i = 0; i < ROWS; i++){
+        for(j = 0; j < COLS; j++){
+            printf("%d ", result[i][j]);
+        }
+        printf("\n");
+    }
+
+    return 0;
+}
+
+6.2
+
+#include <stdio.h>
+#include <omp.h>
+
+#define N 8
+
+int main() {
+    int A[N] = {1, 2, 3, 4, 5, 6, 7, 8};
+    int prefix_sum[N];
+
+    for (int i = 0; i < N; i++) {
+        prefix_sum[i] = A[i];
+    }
+
+    for (int step = 1; step < N; step *= 2) {
+        #pragma omp parallel for
+        for (int i = step; i < N; i++) {
+            prefix_sum[i] += prefix_sum[i - step];
+        }
+    }
+
+    // Print the result
+    printf("Prefix Sum: ");
+    for (int i = 0; i < N; i++) {
+        printf("%d ", prefix_sum[i]);
+    }
+    printf("\n");
+
+    return 0;
+}
+
+
+6.3
+
+#include <stdio.h>
+#include <omp.h>
+
+#define N 4
+
+int main() {
+    int matrix[4][4] = {
+        {1, 2, 3, 4},
+        {5, 6, 7, 8},
+        {9, 10, 11, 12},
+        {13, 14, 15, 16}
+    };
+    int vector[N] = {1, 2, 3, 4};
+    int result[N] = {0};
+
+    #pragma omp parallel for
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            result[i] += matrix[i][j] * vector[j];
+        }
+    }
+
+    // Print the result vector
+    printf("Resultant Vector: ");
+    for (int i = 0; i < N; i++) {
+        printf("%d ", result[i]);
+    }
+    printf("\n");
+
+    return 0;
+}
+
+
+
